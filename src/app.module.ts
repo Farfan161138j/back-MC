@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi'
 import { DatabaseModule } from './modules/database/database.module';
+
+
+import { UsersModule } from './modules/users/users.module';
 @Module({
 //manera global y configuracion requerida
  imports: [
@@ -18,6 +21,7 @@ import { DatabaseModule } from './modules/database/database.module';
     }),
   }),
   DatabaseModule,
+  UsersModule,
  ],
  controllers: [], // Por ejemplo, AppController
   providers: [],   // Por ejemplo, AppService
