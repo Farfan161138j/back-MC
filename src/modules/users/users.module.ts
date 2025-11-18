@@ -19,6 +19,8 @@ import { User } from './infrastructure/entities/user.entity';
 import { Rol } from './infrastructure/entities/rol.entity';
 import { TypeOrmUserRepository } from './infrastructure/persistence/user.repository';
 
+import { UsersService } from './users.service';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Rol]),
@@ -34,11 +36,14 @@ import { TypeOrmUserRepository } from './infrastructure/persistence/user.reposit
     UpdateUserService,
     DeleteUserService, // <-- Añade esta línea
 
+
+    UsersService,
     // 4. El "Pegamento" (se queda igual)
     {
       provide: UserRepository,
       useClass: TypeOrmUserRepository,
     },
   ],
+  exports: [UsersService],
 })
 export class UsersModule {}

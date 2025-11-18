@@ -41,6 +41,8 @@ export interface UserRepository {
  findById(id: number): Promise<UserDomain | null>; // <-- ¡Añade esta línea!
 
  delete(id: number): Promise<void>; // <-- ¡Añade esta línea!
+
+ countByRol(idRol: number): Promise<number>;
 }
 
 

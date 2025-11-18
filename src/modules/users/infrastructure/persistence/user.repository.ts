@@ -71,6 +71,14 @@ async findById(id: number): Promise<UserDomain | null> {
     // 2. No devolvemos nada (void)
     return;
   }
+  async countByRol(idRol: number): Promise<number> {
+    // Usamos el método nativo .count() de TypeORM
+    // SQL equivalente: SELECT COUNT(*) FROM users WHERE id_rol = X
+    const count = await this.ormRepo.count({
+      where: { idRol: idRol },
+    });
+    return count;
+  }
   // 3. Implementamos el método 'save' del contrato
   async save(userDomain: any): Promise<UserDomain> {
     // ¡AQUÍ ESTÁ LA SOLUCIÓN!
