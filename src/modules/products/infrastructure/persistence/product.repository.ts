@@ -20,16 +20,21 @@ export class TypeOrmProductRepository implements ProductRepository {
   async save(productData: Partial<ProductDomain>): Promise<ProductDomain> {
     
     // 1. CORRECCIÓN: Preparamos los datos
-    // TypeORM espera un objeto para la relación, no un número.
     const dataToSave: any = {
       ...productData,
     };
 
     // Si viene el ID del creador, lo convertimos al formato de objeto User
-    // { id_usuario: 5 } es lo que TypeORM entiende para vincular la FK.
     if (productData.createdBy) {
       dataToSave.createdBy = { id_usuario: productData.createdBy };
     }
+
+    // --- NUEVO: TRADUCCIÓN DE CATEGORÍA ---
+    // Si viene el ID de categoría (número), lo convertimos al objeto Category { id: ... }
+    if (productData.categoryId) {
+      dataToSave.category = { id: productData.categoryId };
+    }
+    // --------------------------------------
 
     // 2. Guardamos en la BD
     const savedProduct = await this.ormRepo.save(dataToSave);
@@ -47,7 +52,10 @@ export class TypeOrmProductRepository implements ProductRepository {
       skip: skip,
       take: limit,
       order: { createdAt: 'DESC' },
-      relations: ['createdBy'] // Opcional: Si quieres traer quién lo creó
+      // ANTES (Comentado):
+      // relations: ['createdBy'] 
+      // AHORA (Agregamos category):
+      relations: ['createdBy', 'category'] 
     });
 
     return products.map(product => this.mapToDomain(product));
@@ -59,7 +67,10 @@ export class TypeOrmProductRepository implements ProductRepository {
   async findById(id: number): Promise<ProductDomain | null> {
     const product = await this.ormRepo.findOne({ 
       where: { id },
-      relations: ['createdBy'] // Cargamos la relación para poder mapearla
+      // ANTES (Comentado):
+      // relations: ['createdBy'] 
+      // AHORA (Agregamos category):
+      relations: ['createdBy', 'category'] 
     });
     return product ? this.mapToDomain(product) : null;
   }
@@ -86,7 +97,15 @@ export class TypeOrmProductRepository implements ProductRepository {
     return {
       id: entity.id,
       name: entity.name,
-      categoryId: entity.categoryId,
+      
+      // --- MODIFICADO ---
+      // ANTES (Comentado):
+      // categoryId: entity.categoryId,
+      
+      // AHORA: Extraemos el ID del objeto category (si existe)
+      categoryId: entity.category ? entity.category.id : null,
+      // ------------------
+
       description: entity.description,
       image: entity.image,
       soldQuantity: entity.soldQuantity,

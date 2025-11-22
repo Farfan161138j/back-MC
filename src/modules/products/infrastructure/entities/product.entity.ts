@@ -8,9 +8,11 @@ import {
   JoinColumn
 } from 'typeorm';
 import { User } from '../../../users/infrastructure/entities/user.entity'; 
+// 1. IMPORTAR LA ENTIDAD CATEGORÍA
+import { Category } from '../../../categories/infrastructure/entities/category.entity';
 
 @Entity('producto') 
-export class Product { // <--- Asegúrate que diga 'export'
+export class Product { 
   
   @PrimaryGeneratedColumn({ name: 'id_producto' })
   id: number;
@@ -18,8 +20,18 @@ export class Product { // <--- Asegúrate que diga 'export'
   @Column({ name: 'nombre_producto', length: 255 })
   name: string;
 
-  @Column({ name: 'id_categoria', type: 'int', nullable: true })
-  categoryId: number;
+  // --- MODIFICADO: CAMBIO DE COLUMNA SIMPLE A RELACIÓN ---
+  
+  // ANTES (Comentado):
+  // @Column({ name: 'id_categoria', type: 'int', nullable: true })
+  // categoryId: number;
+
+  // AHORA (Relación):
+  @ManyToOne(() => Category, { nullable: true })
+  @JoinColumn({ name: 'id_categoria' }) // Apuntamos a la misma columna SQL
+  category: Category;
+
+  // -------------------------------------------------------
 
   @Column({ name: 'descripcion_producto', type: 'text', nullable: true })
   description: string;
@@ -46,4 +58,4 @@ export class Product { // <--- Asegúrate que diga 'export'
   @ManyToOne(() => User, { nullable: true }) 
   @JoinColumn({ name: 'created_by' })
   createdBy: User; 
-}   
+}

@@ -5,6 +5,7 @@ import { DatabaseModule } from './modules/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
+import { CategoriesModule } from './modules/categories/categories.module'; // <--- IMPORTAR
 @Module({
 //manera global y configuracion requerida
  imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './modules/users/users.module';
   UsersModule,
   AuthModule,
   ProductsModule,
+  CategoriesModule,
  ],
  controllers: [],
   providers: [],   
