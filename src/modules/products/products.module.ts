@@ -11,7 +11,7 @@ import { TypeOrmProductRepository } from './infrastructure/persistence/product.r
 
 // 3. Importamos TODOS los Servicios (Cerebros)
 import { CreateProductService } from './application/create-product/create-product.service';
-import { GetAllProductsService } from './application/get-all-products/et-all-products.service'; // <--- ¡ESTE ERA EL CULPABLE!
+import { GetAllProductsService } from './application/get-all-products/get-all-products.service'; // <--- ¡ESTE ERA EL CULPABLE!
 import { GetProductByIdService } from './application/get-product-by-id/get-product-by-id.service';
 import { UpdateProductService } from './application/update-product/update-product.service';
 import { DeleteProductService } from './application/delete-product/delete-product.service';

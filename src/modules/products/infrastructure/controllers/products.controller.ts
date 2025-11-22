@@ -6,7 +6,7 @@ import { JwtAuthGuard } from '../../../auth/infrastructure/guards/jwt-auth.guard
 
 // Servicios
 import { CreateProductService } from '../../application/create-product/create-product.service';
-import { GetAllProductsService } from '../../application/get-all-products/et-all-products.service';
+import { GetAllProductsService } from '../../application/get-all-products/get-all-products.service';
 import { GetProductByIdService } from '../../application/get-product-by-id/get-product-by-id.service';
 import { UpdateProductService } from '../../application/update-product/update-product.service';
 import { DeleteProductService } from '../../application/delete-product/delete-product.service';
