@@ -1,5 +1,3 @@
-// src/modules/auth/application/login/login.service.ts
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt'; // Ya no necesitamos ConfigService aquí
 import { UsersService } from '../../../users/users.service';

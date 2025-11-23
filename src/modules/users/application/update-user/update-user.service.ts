@@ -5,72 +5,75 @@ import {
   Inject,
   NotFoundException,
   ConflictException,
+  ForbiddenException, // <--- 1. NUEVO IMPORT
 } from '@nestjs/common';
 import {
   UserDomain,
   UserRepository,
 } from '../../domain/user.repository';
 import { UpdateUserDto } from '../../infrastructure/controllers/dto/update-user.dto';
+import { RoleEnum } from '../../domain/roles.enum'; // <--- 2. NUEVO IMPORT
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UpdateUserService {
   
-  // 1. Inyectamos el "Contrato" (UserRepository)
   constructor(
     @Inject(UserRepository)
     private readonly userRepository: UserRepository,
   ) {}
 
-  /**
-   * Este es el "Caso de Uso" para actualizar un usuario.
-   * @param id El ID del usuario a actualizar.
-   * @param updateUserDto Los datos a actualizar.
-   */
   public async execute(
     id: number,
     updateUserDto: UpdateUserDto,
+    requestingUser: any, // <--- 3. PARAMETRO NUEVO
   ): Promise<UserDomain> {
     
-    // 1. Buscamos el usuario por ID (¡Reutilizamos el 'findById'!)
+    // --- 🛡️ 4. BLOQUE DE SEGURIDAD NUEVO ---
+    const isAdmin = requestingUser.rol === RoleEnum.ADMIN;
+    const isOwner = requestingUser.id === id;
+
+    if (!isAdmin && !isOwner) {
+      throw new ForbiddenException('No puedes modificar el perfil de otro usuario.');
+    }
+    // ---------------------------------------
+
+    // 1. Buscamos el usuario por ID
     const userToUpdate = await this.userRepository.findById(id);
 
-    // 2. Si no existe, lanzamos un error 404
     if (!userToUpdate) {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
 
-    // 3. Verificamos si el email se va a cambiar Y si ya existe
+    // 2. Verificamos email duplicado (si cambió)
     if (updateUserDto.email && updateUserDto.email !== userToUpdate.email) {
       const existingUserByEmail = await this.userRepository.findByEmail(
         updateUserDto.email,
       );
-      // Si existe otro usuario con ese email, lanzamos error 409
       if (existingUserByEmail) {
         throw new ConflictException('El correo electrónico ya está en uso');
       }
     }
 
-    // 4. Verificamos si la contraseña se va a cambiar
+    // 3. Hasheamos password (si cambió)
     let hashedPassword: string | undefined;
     if (updateUserDto.password) {
-      // Hasheamos la nueva contraseña
       hashedPassword = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    // 5. Mezclamos los datos
-    // 'Object.assign' toma el objeto original (userToUpdate)
-    // y le "encima" los campos del DTO.
+    // 4. Mezclamos los datos
     const updatedUser = Object.assign(userToUpdate, {
       ...updateUserDto,
-      // Si hasheamos un password, lo usamos. Si no, usamos 'undefined'
-      // (lo que 'Object.assign' ignora, dejando el password anterior)
-      passwordHash: hashedPassword, 
+      passwordHash: hashedPassword, // Si es undefined, Object.assign suele ignorarlo o ponerlo undefined, cuidaremos eso en la persistencia.
     });
+    
+    // Nota: Si hashedPassword es undefined, asegúrate de que tu lógica de guardado no borre el hash anterior. 
+    // En tu código actual, si Object.assign recibe undefined, la propiedad queda undefined. 
+    // TypeORM suele ser inteligente, pero una forma más segura es:
+    if (hashedPassword) {
+        updatedUser.passwordHash = hashedPassword;
+    }
 
-    // 6. Guardamos el usuario actualizado
-    // (¡Reutilizamos el 'save'!)
-    // El 'save' recibe el objeto con 'passwordHash' y lo guarda.
     return this.userRepository.save(updatedUser);
   }
 }

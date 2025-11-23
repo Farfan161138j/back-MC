@@ -4,39 +4,42 @@ import {
   Injectable,
   Inject,
   NotFoundException,
+  ForbiddenException, // <--- 1. NUEVO IMPORT
 } from '@nestjs/common';
 import {
   UserDomain,
   UserRepository,
 } from '../../domain/user.repository';
+import { RoleEnum } from '../../domain/roles.enum'; // <--- 2. NUEVO IMPORT
 
 @Injectable()
 export class GetUserByIdService {
   
-  // 1. Inyectamos el "Contrato" (UserRepository)
   constructor(
     @Inject(UserRepository)
     private readonly userRepository: UserRepository,
   ) {}
 
   /**
-   * Este es el "Caso de Uso" para obtener un usuario por su ID.
-   * @param id El ID del usuario a buscar.
+   * Ahora recibimos también quién está pidiendo la info.
    */
-  public async execute(id: number): Promise<UserDomain> {
+  public async execute(id: number, requestingUser: any): Promise<UserDomain> { // <--- 3. PARAMETRO NUEVO
     
-    // 1. Le pedimos al "Obrero" (a través del "Contrato")
-    // que busque al usuario por su ID.
+    // --- 🛡️ 4. BLOQUE DE SEGURIDAD NUEVO ---
+    const isAdmin = requestingUser.rol === RoleEnum.ADMIN;
+    const isOwner = requestingUser.id === id;
+
+    if (!isAdmin && !isOwner) {
+      throw new ForbiddenException('No tienes permiso para ver la información de otro usuario.');
+    }
+    // ---------------------------------------
+    
     const user = await this.userRepository.findById(id);
 
-    // 2. ¡Lógica de Negocio!
-    // Si el "Obrero" nos devuelve 'null', significa
-    // que no lo encontró. Lanzamos un error.
     if (!user) {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
 
-    // 3. Devolvemos el usuario encontrado.
     return user;
   }
 }

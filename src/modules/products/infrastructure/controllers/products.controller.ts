@@ -4,6 +4,11 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../auth/infrastructure/guards/jwt-auth.guard';
 
+// Imports de Seguridad
+import { Roles } from '../../../auth/infrastructure/decorators/roles.decorator';
+import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
+import { RoleEnum } from '../../../users/domain/roles.enum';
+
 // Servicios
 import { CreateProductService } from '../../application/create-product/create-product.service';
 import { GetAllProductsService } from '../../application/get-all-products/get-all-products.service';
@@ -26,10 +31,11 @@ export class ProductsController {
     private readonly deleteProductService: DeleteProductService,
   ) {}
 
-  // --- CREAR (Protegido) ---
+  // --- CREAR (SOLO ADMIN) ---
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard) // 1. Agregamos al Portero de Roles
+  @Roles(RoleEnum.ADMIN)               // 2. Etiqueta: "Solo pasa Rol Admin"
   async create(@Body() createProductDto: CreateProductDto, @Request() req) {
     return this.createProductService.execute(createProductDto, req.user.id);
   }
@@ -37,6 +43,7 @@ export class ProductsController {
   // --- LEER TODOS (Público) ---
   @Get()
   @HttpCode(HttpStatus.OK)
+  // Sin Guards ni Roles = Cualquiera puede ver
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -51,10 +58,11 @@ export class ProductsController {
     return this.getProductByIdService.execute(id);
   }
 
-  // --- ACTUALIZAR (Protegido) ---
+  // --- ACTUALIZAR (SOLO ADMIN) ---
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard) // 1. Agregamos al Portero de Roles
+  @Roles(RoleEnum.ADMIN)               // 2. Etiqueta: "Solo pasa Rol Admin"
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
@@ -62,10 +70,11 @@ export class ProductsController {
     return this.updateProductService.execute(id, updateProductDto);
   }
 
-  // --- BORRAR (Protegido) ---
+  // --- BORRAR (SOLO ADMIN) ---
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard) // 1. Agregamos al Portero de Roles
+  @Roles(RoleEnum.ADMIN)               // 2. Etiqueta: "Solo pasa Rol Admin"
   async delete(@Param('id', ParseIntPipe) id: number) {
     await this.deleteProductService.execute(id);
     return;
