@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
 import { CategoriesModule } from './modules/categories/categories.module'; // <--- IMPORTAR
+import { ServicesModule } from './modules/services/services.module'; // <--- IMPORTAR
 @Module({
 //manera global y configuracion requerida
  imports: [
@@ -26,6 +27,7 @@ import { CategoriesModule } from './modules/categories/categories.module'; // <-
   AuthModule,
   ProductsModule,
   CategoriesModule,
+  ServicesModule,
  ],
  controllers: [],
   providers: [],   
