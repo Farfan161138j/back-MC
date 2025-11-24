@@ -5,8 +5,9 @@ import { DatabaseModule } from './modules/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
-import { CategoriesModule } from './modules/categories/categories.module'; // <--- IMPORTAR
-import { ServicesModule } from './modules/services/services.module'; // <--- IMPORTAR
+import { CategoriesModule } from './modules/categories/categories.module'; 
+import { ServicesModule } from './modules/services/services.module'; 
+import { RequestsModule } from './modules/requests/requests.module'; 
 @Module({
 //manera global y configuracion requerida
  imports: [
@@ -28,6 +29,7 @@ import { ServicesModule } from './modules/services/services.module'; // <--- IMP
   ProductsModule,
   CategoriesModule,
   ServicesModule,
+  RequestsModule,
  ],
  controllers: [],
   providers: [],   
