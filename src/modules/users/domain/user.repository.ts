@@ -9,6 +9,7 @@ export class UserDomain {
   apellidoMaterno?: string; // El '?' lo marca como opcional (nullable)
   idRol: number;
   isActive: boolean;
+  whatsappNumber?: string;
   
   // Nota: Omitimos 'passwordHash' a propósito.
   // El dominio puro no debería exponer datos sensibles

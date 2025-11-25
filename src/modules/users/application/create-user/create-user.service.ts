@@ -56,6 +56,7 @@ export class CreateUserService {
     newUserDomain.apellidoPaterno = dto.apellidoPaterno;
     newUserDomain.idRol = dto.idRol;
     newUserDomain.isActive = true;
+    newUserDomain.whatsappNumber = dto.whatsappNumber;
 
     const userToSave = {
       ...newUserDomain,

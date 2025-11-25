@@ -32,6 +32,10 @@ export class CreateUserDto{
     @IsNotEmpty()
     password: string;
 
+    @IsString()
+  @IsOptional()
+  whatsappNumber?: string;
+
     @IsNumber()
     @IsNotEmpty()
     idRol: number;

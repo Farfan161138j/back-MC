@@ -18,6 +18,9 @@ export class User {
   @Column({ type: 'varchar', length: 255, unique: true, nullable: false })
   email: string;
 
+  @Column({ name: 'telefono_whatsapp', length: 20, nullable: true })
+  whatsappNumber: string;
+
   @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: false, select: false })
   passwordHash: string;
 

@@ -11,31 +11,43 @@ export class TypeOrmRequestRepository implements RequestRepository {
     private readonly ormRepo: Repository<Request>,
   ) {}
 
+  // --- 👇 AQUÍ ESTÁ LA CORRECCIÓN (findOneOrFail) 👇 ---
   async save(request: Request): Promise<Request> {
-    return this.ormRepo.save(request);
-  }
+    // 1. Guardamos la data inicial
+    const savedRequest = await this.ormRepo.save(request);
 
-  // --- 👇 ESTO ES LO QUE TE FALTABA 👇 ---
+    // 2. Recargamos INMEDIATAMENTE con relaciones
+    // Usamos findOneOrFail para asegurar que NO devuelva null
+    return this.ormRepo.findOneOrFail({
+      where: { id: savedRequest.id },
+      relations: [
+        'user',           
+        'items', 
+        'items.product',  // Nombres de productos
+        'items.service'   // Nombres de servicios
+      ]
+    });
+  }
+  // ----------------------------------------------------
+
   async findByUserId(userId: number): Promise<Request[]> {
     return this.ormRepo.find({
-      // OJO: Usamos 'id_usuario' porque así se llama tu columna en la entidad User
       where: { user: { id_usuario: userId } }, 
       relations: [
-        'status',                   // Traer el estado (Pendiente, Finalizado)
-        'items',                    // Traer los items de la lista
-        'items.product',            // Traer el nombre del producto
-        'items.service',            // Traer el nombre del servicio
-        'items.service.serviceType' // Traer el tipo (Mantenimiento, etc.)
+        'status', 
+        'items', 
+        'items.product',  
+        'items.service',
+        'items.service.serviceType'
       ],
-      order: { createdAt: 'DESC' }  // Ordenar: Lo más nuevo primero
+      order: { createdAt: 'DESC' } 
     });
   }
 
-  // --- TAMBIÉN AGREGA ESTE PARA EL ADMIN (Ver todos) ---
   async findAll(): Promise<Request[]> {
     return this.ormRepo.find({
       relations: [
-        'user', // El admin necesita saber QUIÉN pidió
+        'user', 
         'status', 
         'items', 
         'items.product', 
