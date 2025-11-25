@@ -11,6 +11,10 @@ import { LoginService } from './application/login/login.service';
 import { JwtStrategy } from './infrastructure/strategies/jwt.strategy'; // <-- IMPÓRTALO
 
 import { AuthController } from './infrastructure/controllers/auth.controller';
+
+import { GoogleStrategy } from './infrastructure/strategies/google.strategy';
+import { LoginGoogleService } from './application/login-google/login-google.service';
+
 @Module({
   imports: [
     // 2. Importamos el UsersModule
@@ -36,6 +40,8 @@ import { AuthController } from './infrastructure/controllers/auth.controller';
   providers: [
     LoginService,
     JwtStrategy,
+    GoogleStrategy,     
+    LoginGoogleService,
   
   ],
 })
