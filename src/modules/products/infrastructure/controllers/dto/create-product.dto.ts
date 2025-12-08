@@ -16,7 +16,7 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
-  // @IsUrl() // Descomenta si quieres validar que sea una URL real
+ 
   image?: string;
 
   @IsInt()

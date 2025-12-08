@@ -29,7 +29,9 @@ export class TypeOrmServiceRepository implements ServiceRepository {
     }
 
     const saved = await this.ormRepo.save(entity);
-    return this.mapToDomain(saved);
+    const fullObject = await this.findById(saved.id);
+    
+    return fullObject || this.mapToDomain(saved);
   }
 
   async findAll(): Promise<ServiceDomain[]> {
@@ -73,8 +75,10 @@ export class TypeOrmServiceRepository implements ServiceRepository {
       updatedAt: entity.updatedAt,
       
       createdBy: creatorId,
-      serviceTypeId: entity.serviceType ? entity.serviceType.id : null,
-      serviceTypeName: entity.serviceType ? entity.serviceType.name : null,
+      serviceType: entity.serviceType ? {
+        id: entity.serviceType.id,
+        name: entity.serviceType.name
+      } : undefined,
     };
   }
 }

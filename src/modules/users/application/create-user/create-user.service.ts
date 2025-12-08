@@ -29,13 +29,7 @@ export class CreateUserService {
     
     // --- 3. REGLA DE NEGOCIO (SEGURIDAD) ---
     // Si intentan crear un Administrador (idRol 1)
-    if (dto.idRol === 1) {
-      // Y quien lo pide NO es Administrador (su rol en el token no es 1)
-      if (requestingUser.rol !== 1) {
-        throw new ForbiddenException('No tienes permisos para crear administradores.');
-      }
-    }
-    // ---------------------------------------
+ 
 
     const userExists = await this.userRepository.findByEmail(dto.email);
 

@@ -9,8 +9,11 @@ export class ServiceDomain {
   // --- CAMBIOS AQUÍ ---
   // Agregamos '?' y '| null' para que acepte nulos sin dar error
   createdBy?: number | null; 
-  serviceTypeId?: number | null; 
-  serviceTypeName?: string | null;
+  serviceTypeId?: number | null;
+ serviceType?: { 
+    id: number; 
+    name: string; 
+  };
   // --------------------
 }
 

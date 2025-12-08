@@ -27,7 +27,6 @@ import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
 import { RoleEnum } from '../../domain/roles.enum';
 
 @Controller('users')
-@UseGuards(JwtAuthGuard, RolesGuard) 
 export class UsersController {
   
   constructor(

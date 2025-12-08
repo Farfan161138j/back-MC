@@ -3,8 +3,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Product } from '../entities/product.entity'; // La Entidad (Tabla)
-import { ProductRepository, ProductDomain } from '../../domain/product.repository'; // El Contrato
+import { Product } from '../entities/product.entity';
+import { ProductRepository, ProductDomain } from '../../domain/product.repository';
 
 @Injectable()
 export class TypeOrmProductRepository implements ProductRepository {
@@ -15,35 +15,27 @@ export class TypeOrmProductRepository implements ProductRepository {
   ) {}
 
   /**
-   * Guardar o Actualizar un producto
+   * Guardar o Actualizar
    */
   async save(productData: Partial<ProductDomain>): Promise<ProductDomain> {
-    
-    // 1. CORRECCIÓN: Preparamos los datos
     const dataToSave: any = {
       ...productData,
     };
 
-    // Si viene el ID del creador, lo convertimos al formato de objeto User
     if (productData.createdBy) {
       dataToSave.createdBy = { id_usuario: productData.createdBy };
     }
 
-    // --- NUEVO: TRADUCCIÓN DE CATEGORÍA ---
-    // Si viene el ID de categoría (número), lo convertimos al objeto Category { id: ... }
     if (productData.categoryId) {
       dataToSave.category = { id: productData.categoryId };
     }
-    // --------------------------------------
 
-    // 2. Guardamos en la BD
     const savedProduct = await this.ormRepo.save(dataToSave);
-    
     return this.mapToDomain(savedProduct);
   }
 
   /**
-   * Buscar todos (con paginación)
+   * Buscar todos
    */
   async findAll(page: number, limit: number): Promise<ProductDomain[]> {
     const skip = (page - 1) * limit;
@@ -52,9 +44,6 @@ export class TypeOrmProductRepository implements ProductRepository {
       skip: skip,
       take: limit,
       order: { createdAt: 'DESC' },
-      // ANTES (Comentado):
-      // relations: ['createdBy'] 
-      // AHORA (Agregamos category):
       relations: ['createdBy', 'category'] 
     });
 
@@ -67,9 +56,6 @@ export class TypeOrmProductRepository implements ProductRepository {
   async findById(id: number): Promise<ProductDomain | null> {
     const product = await this.ormRepo.findOne({ 
       where: { id },
-      // ANTES (Comentado):
-      // relations: ['createdBy'] 
-      // AHORA (Agregamos category):
       relations: ['createdBy', 'category'] 
     });
     return product ? this.mapToDomain(product) : null;
@@ -90,22 +76,28 @@ export class TypeOrmProductRepository implements ProductRepository {
     await this.ormRepo.delete(id);
   }
 
+  // =========================================================
+  // MÉTODO AGREGADO: implementa 'find' requerido por la interfaz
+  // =========================================================
+  async find(options: any): Promise<ProductDomain[]> {
+    const products = await this.ormRepo.find(options);
+    return products.map(product => this.mapToDomain(product));
+  }
+
   /**
-   * MAPPER: Convierte de Entidad (BD) a Dominio (Puro)
+   * MAPPER
    */
   private mapToDomain(entity: Product): ProductDomain {
     return {
       id: entity.id,
       name: entity.name,
       
-      // --- MODIFICADO ---
-      // ANTES (Comentado):
-      // categoryId: entity.categoryId,
-      
-      // AHORA: Extraemos el ID del objeto category (si existe)
-      categoryId: entity.category ? entity.category.id : null,
-      // ------------------
-
+      // Si la entidad trae category cargada, exponemos su objeto (y también categoryId)
+      category: entity.category ? {
+        id: entity.category.id,
+        // Ajusta el campo 'name' si tu entidad usa otro nombre (p. ej. 'nombre_categoria')
+        name: (entity.category as any).name ?? (entity.category as any).nombre_categoria ?? null,
+      } : null,      
       description: entity.description,
       image: entity.image,
       soldQuantity: entity.soldQuantity,
@@ -113,8 +105,7 @@ export class TypeOrmProductRepository implements ProductRepository {
       isActive: entity.isActive,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      // Mapeamos el objeto User a solo su ID numérico
       createdBy: entity.createdBy ? entity.createdBy.id_usuario : null, 
-    } as ProductDomain;
+    } as any;
   }
 }

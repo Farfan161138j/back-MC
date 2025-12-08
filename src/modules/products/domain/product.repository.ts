@@ -31,6 +31,7 @@ export interface ProductRepository {
 
   // Borrar
   delete(id: number): Promise<void>;
+  find(options: any): Promise<ProductDomain[]>;
 }
 
 // Token para la Inyección de Dependencias (lo usaremos en el Module)
