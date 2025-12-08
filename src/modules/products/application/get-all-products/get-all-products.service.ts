@@ -10,6 +10,13 @@ export class GetAllProductsService {
 
   // Recibimos paginación básica (página 1, 10 por página por defecto)
   public async execute(page: number = 1, limit: number = 10): Promise<ProductDomain[]> {
-    return this.productRepository.findAll(page, limit);
+    const take = limit;
+    const skip = (page - 1) * limit;
+
+    return await this.productRepository.find({
+      take,
+      skip,
+      relations: ['category'],
+    });
   }
 }
